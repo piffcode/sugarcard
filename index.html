@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sugar Shack Card - Claim Transaction</title>
+    <title>Sugar Shack - Claim Transaction</title>
     <style>
         * {
             margin: 0;
@@ -59,6 +59,11 @@
             border-left: 4px solid #f5576c;
         }
         
+        .transaction-info.incoming {
+            background: #f0fdf4;
+            border-left-color: #10b981;
+        }
+        
         .transaction-info h3 {
             color: #333;
             font-size: 16px;
@@ -80,6 +85,25 @@
         .info-value {
             color: #333;
             font-weight: 600;
+        }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .type-badge.outgoing {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .type-badge.incoming {
+            background: #d1fae5;
+            color: #065f46;
         }
         
         .form-group {
@@ -118,10 +142,127 @@
             resize: vertical;
         }
         
+        .file-upload-area {
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .file-upload-area:hover {
+            border-color: #f5576c;
+            background: #fff4f4;
+        }
+        
+        .file-upload-area.dragover {
+            border-color: #f5576c;
+            background: #ffe8eb;
+            transform: scale(1.02);
+        }
+        
+        .file-upload-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+        
+        .file-upload-text {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .file-upload-subtext {
+            color: #999;
+            font-size: 12px;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .file-preview {
+            display: none;
+            margin-top: 16px;
+            padding: 12px;
+            background: #fff4f4;
+            border-radius: 8px;
+            border: 1px solid #f5576c;
+        }
+        
+        .file-preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .file-icon {
+            font-size: 24px;
+        }
+        
+        .file-details {
+            flex: 1;
+        }
+        
+        .file-name {
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .remove-file {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .remove-file:hover {
+            background: #dc2626;
+        }
+        
+        .image-preview {
+            margin-top: 12px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .image-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
         .char-count {
             text-align: right;
             font-size: 12px;
             color: #999;
+            margin-top: 4px;
+        }
+        
+        .help-text {
+            color: #666;
+            font-size: 12px;
             margin-top: 4px;
         }
         
@@ -210,18 +351,19 @@
         <div id="formScreen">
             <div class="header">
                 <div class="icon">🏠</div>
-                <h1>Sugar Shack Card</h1>
-                <p class="subtitle">Claim your purchase</p>
+                <h1>Sugar Shack Account</h1>
+                <p class="subtitle">Claim this transaction</p>
             </div>
             
             <div class="transaction-info" id="transactionInfo">
-                <h3>What Was Bought</h3>
+                <span class="type-badge" id="typeBadge">OUTGOING</span>
+                <h3 id="transactionTitle">Money Went Out</h3>
                 <div class="info-row">
                     <span class="info-label">Amount:</span>
                     <span class="info-value" id="displayAmount">$0.00</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">Store:</span>
+                    <span class="info-label" id="merchantLabel">To:</span>
                     <span class="info-value" id="displayMerchant">-</span>
                 </div>
                 <div class="info-row">
@@ -241,45 +383,66 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="category">What Was This For? <span class="required">*</span></label>
+                    <label for="category" id="categoryLabel">What Was This For? <span class="required">*</span></label>
                     <select id="category" name="category" required>
                         <option value="">Select category...</option>
-                        <option value="Groceries">Groceries</option>
-                        <option value="House Supplies">House Supplies (toilet paper, cleaning, etc.)</option>
-                        <option value="Kitchen Stuff">Kitchen Stuff</option>
-                        <option value="Utilities">Utilities</option>
-                        <option value="Repairs & Maintenance">Repairs & Maintenance</option>
-                        <option value="House Event">House Event / Party</option>
-                        <option value="Shared Meal">Shared Meal / Dinner</option>
-                        <option value="Other">Other</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
-                    <label for="reason">Tell Us More <span class="required">*</span></label>
+                    <label for="reason" id="reasonLabel">Tell Us More <span class="required">*</span></label>
                     <textarea 
                         id="reason" 
                         name="reason" 
                         required 
-                        placeholder="What did you buy and why? E.g., 'Bought ingredients for taco Tuesday' or 'Emergency plunger purchase'"
+                        placeholder="What happened? E.g., 'Bought ingredients for taco Tuesday'"
                         maxlength="500"
                         oninput="updateCharCount()"></textarea>
                     <div class="char-count"><span id="charCount">0</span>/500</div>
                 </div>
                 
-                <button type="submit" id="submitBtn">Claim This Purchase</button>
+                <div class="form-group">
+                    <label for="receipt">Receipt Upload</label>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <div class="file-upload-icon">📸</div>
+                        <div class="file-upload-text">
+                            <strong>Click to upload</strong> or drag and drop
+                        </div>
+                        <div class="file-upload-subtext">
+                            Take a photo or upload image (max 10MB)
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/*" />
+                    
+                    <div class="file-preview" id="filePreview">
+                        <div class="file-preview-header">
+                            <div class="file-info">
+                                <span class="file-icon" id="fileIcon">📄</span>
+                                <div class="file-details">
+                                    <div class="file-name" id="fileName">receipt.jpg</div>
+                                    <div class="file-size" id="fileSize">0 KB</div>
+                                </div>
+                            </div>
+                            <button type="button" class="remove-file" onclick="removeFile()">Remove</button>
+                        </div>
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
+                    <div class="help-text">Optional: Will be posted to #receipts channel in Discord</div>
+                </div>
+                
+                <button type="submit" id="submitBtn">Claim This Transaction</button>
             </form>
         </div>
         
         <div class="loading" id="loadingScreen">
             <div class="spinner"></div>
-            <p>Logging your purchase...</p>
+            <p>Logging transaction...</p>
         </div>
         
         <div class="success-screen" id="successScreen">
             <div class="icon">✅</div>
             <h2>Thanks!</h2>
-            <p>Your purchase has been logged. Everyone's been notified in Discord!</p>
+            <p>Transaction has been logged. Everyone's been notified in Discord!</p>
             <button class="btn-secondary" onclick="window.close()">Close</button>
         </div>
         
@@ -298,12 +461,136 @@
         const amount = urlParams.get('amount') || 'Unknown';
         const merchant = urlParams.get('merchant') || 'Unknown';
         const date = urlParams.get('date') || 'Unknown';
+        const transactionType = urlParams.get('type') || 'OUT';
         
-        // Display transaction info
+        // Update UI based on transaction type
+        const isIncoming = transactionType === 'IN';
+        const transactionInfo = document.getElementById('transactionInfo');
+        const typeBadge = document.getElementById('typeBadge');
+        const transactionTitle = document.getElementById('transactionTitle');
+        const merchantLabel = document.getElementById('merchantLabel');
+        const categoryLabel = document.getElementById('categoryLabel');
+        const reasonLabel = document.getElementById('reasonLabel');
+        const categorySelect = document.getElementById('category');
+        
+        if (isIncoming) {
+            transactionInfo.classList.add('incoming');
+            typeBadge.classList.add('incoming');
+            typeBadge.textContent = 'INCOMING';
+            transactionTitle.textContent = 'Money Came In';
+            merchantLabel.textContent = 'From:';
+            categoryLabel.innerHTML = 'What Type of Income? <span class="required">*</span>';
+            reasonLabel.innerHTML = 'Tell Us More <span class="required">*</span>';
+            
+            categorySelect.innerHTML = `
+                <option value="">Select category...</option>
+                <option value="Venmo/Zelle Received">Venmo/Zelle Received</option>
+                <option value="Housemate Reimbursement">Housemate Reimbursement</option>
+                <option value="Rent Payment">Rent Payment</option>
+                <option value="Deposit">Deposit</option>
+                <option value="Transfer In">Transfer In</option>
+                <option value="Refund">Refund</option>
+                <option value="Other Income">Other Income</option>
+            `;
+        } else {
+            typeBadge.classList.add('outgoing');
+            typeBadge.textContent = 'OUTGOING';
+            transactionTitle.textContent = 'Money Went Out';
+            merchantLabel.textContent = 'To:';
+            
+            categorySelect.innerHTML = `
+                <option value="">Select category...</option>
+                <option value="Groceries">Groceries</option>
+                <option value="House Supplies">House Supplies (toilet paper, cleaning, etc.)</option>
+                <option value="Kitchen Stuff">Kitchen Stuff</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Repairs & Maintenance">Repairs & Maintenance</option>
+                <option value="House Event">House Event / Party</option>
+                <option value="Shared Meal">Shared Meal / Dinner</option>
+                <option value="Rent">Rent</option>
+                <option value="Venmo/Zelle Sent">Venmo/Zelle Sent</option>
+                <option value="Other">Other</option>
+            `;
+        }
+        
         document.getElementById('displayTxnId').textContent = transactionId || 'Unknown';
         document.getElementById('displayAmount').textContent = amount.startsWith('$') ? amount : '$' + amount;
         document.getElementById('displayMerchant').textContent = merchant;
         document.getElementById('displayDate').textContent = date;
+        
+        let selectedFile = null;
+        
+        // File upload handling
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const filePreview = document.getElementById('filePreview');
+        
+        fileUploadArea.addEventListener('click', () => fileInput.click());
+        
+        fileUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.add('dragover');
+        });
+        
+        fileUploadArea.addEventListener('dragleave', () => {
+            fileUploadArea.classList.remove('dragover');
+        });
+        
+        fileUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        function handleFile(file) {
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB');
+                return;
+            }
+            
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file');
+                return;
+            }
+            
+            selectedFile = file;
+            
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+            document.getElementById('fileIcon').textContent = '🖼️';
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imagePreview = document.getElementById('imagePreview');
+                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Receipt preview">`;
+            };
+            reader.readAsDataURL(file);
+            
+            filePreview.style.display = 'block';
+        }
+        
+        function removeFile() {
+            selectedFile = null;
+            fileInput.value = '';
+            filePreview.style.display = 'none';
+            document.getElementById('imagePreview').innerHTML = '';
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
         
         function updateCharCount() {
             const textarea = document.getElementById('reason');
@@ -339,29 +626,32 @@
             
             const formData = new FormData(e.target);
             
-            const claimData = {
-                transactionId: transactionId,
-                amount: amount,
-                merchant: merchant,
-                date: date,
-                claimedBy: formData.get('claimedBy'),
-                category: formData.get('category'),
-                reason: formData.get('reason'),
-                claimedAt: new Date().toISOString()
-            };
+            // Prepare form data with receipt
+            const formDataToSend = new FormData();
+            formDataToSend.append('transactionId', transactionId);
+            formDataToSend.append('amount', amount);
+            formDataToSend.append('merchant', merchant);
+            formDataToSend.append('date', date);
+            formDataToSend.append('transactionType', transactionType);
+            formDataToSend.append('claimedBy', formData.get('claimedBy'));
+            formDataToSend.append('category', formData.get('category'));
+            formDataToSend.append('reason', formData.get('reason'));
+            formDataToSend.append('claimedAt', new Date().toISOString());
+            
+            // Add receipt webhook and file if present
+            if (selectedFile) {
+                formDataToSend.append('discordWebhook', 'YOUR_RECEIPTS_WEBHOOK_URL_HERE');
+                formDataToSend.append('receipt', selectedFile);
+            }
             
             showLoading();
             
-            // UPDATE THIS WITH YOUR N8N WEBHOOK URL
             const webhookUrl = 'https://piffmarti.app.n8n.cloud/webhook/claim-transaction';
             
             try {
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(claimData)
+                    body: formDataToSend
                 });
                 
                 if (response.ok) {
